@@ -1,7 +1,3 @@
-Absolutely, King. Let's throw away the **"enterprise product" PRD** and make a **5-day MVP PRD**.
-
-The important thing is that it still matches what you already submitted: Admin/Mentor/Student roles, division-wise assignment, feedback, mentor satisfaction, issue tracking, mentoring sessions, dashboard/analytics, and reports. 
-
 # MentorSync — 5-Day MVP PRD
 
 **Project:** MentorSync — Student Mentoring, Feedback & Support Platform
