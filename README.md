@@ -633,32 +633,37 @@ Track Status
 
 ## 🌿 Git Workflow
 
-Each developer works on a dedicated feature branch.
+We use a single-branch workflow for this project.
 
 ```text
 main
- │
- ├── feature/auth-admin
- ├── feature/divisions
- ├── feature/feedback
- └── feature/issues
 ```
 
 Recommended workflow:
 
 ```bash
-git checkout -b feature/your-feature
-
+git checkout main
+git pull
 git add .
-
-git commit -m "Add feature"
-
-git push origin feature/your-feature
+git commit -m "Your descriptive commit message"
+git push origin main
 ```
 
-Create a Pull Request and merge into `main` after review.
-
 ---
+
+## 🏃 Running the Application (Checkpoint 1)
+
+**Backend:**
+1. Configure `.env` in `backend/` with your PostgreSQL credentials.
+2. Run `python manage.py check` to verify configuration.
+3. Run `python manage.py runserver`.
+4. Visit `http://127.0.0.1:8000/api/health/` to check the API status.
+
+**Frontend:**
+1. Navigate to `frontend/`.
+2. Ensure you have copied `.env.example` to `.env.local` or `.env`.
+3. Run `npm install` and `npm run dev`.
+4. Open the displayed local URL in your browser to see the frontend health check screen.
 
 ## 📅 Development Plan
 
