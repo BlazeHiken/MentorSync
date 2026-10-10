@@ -5,6 +5,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { DashboardLayout } from './components/DashboardLayout';
 import { Login } from './pages/Login';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
+import { Divisions } from './pages/admin/Divisions';
 import { MentorDashboard } from './pages/mentor/MentorDashboard';
 import { StudentDashboard } from './pages/student/StudentDashboard';
 
@@ -44,6 +45,14 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={['ADMIN']}>
                   <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/divisions"
+              element={
+                <ProtectedRoute allowedRoles={['ADMIN']}>
+                  <Divisions />
                 </ProtectedRoute>
               }
             />
