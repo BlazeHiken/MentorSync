@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Division, Assignment
+from .models import Division, Assignment, Feedback, SatisfactionSurvey
 from django.contrib.auth.models import User
 from accounts.serializers import UserSerializer
 
@@ -27,3 +27,19 @@ class BulkAssignmentSerializer(serializers.Serializer):
     student_ids = serializers.ListField(
         child=serializers.IntegerField()
     )
+
+class FeedbackSerializer(serializers.ModelSerializer):
+    student_details = UserSerializer(source='student', read_only=True)
+    
+    class Meta:
+        model = Feedback
+        fields = ['id', 'student', 'student_details', 'category', 'rating', 'comments', 'created_at']
+        read_only_fields = ['student']
+        
+class SatisfactionSurveySerializer(serializers.ModelSerializer):
+    student_details = UserSerializer(source='student', read_only=True)
+    
+    class Meta:
+        model = SatisfactionSurvey
+        fields = ['id', 'student', 'student_details', 'mentor_satisfaction_rating', 'mentor_helpfulness_rating', 'comments', 'created_at']
+        read_only_fields = ['student']
