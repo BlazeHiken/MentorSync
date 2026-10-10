@@ -1,18 +1,31 @@
-from django.core.management.base import BaseCommand
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.management.base import BaseCommand, CommandError
+
 from accounts.models import UserProfile, Role
+
 
 class Command(BaseCommand):
     help = 'Seeds initial demo users: Admin, Mentor, and Student'
 
     def handle(self, *args, **kwargs):
-        # 1. Update any existing superusers to ADMIN profile
+        # Prevent demo-user seeding in production.
+        if not settings.DEBUG:
+            raise CommandError(
+                "This command can only be run when DEBUG is True."
+            )
+
+        # 1. Update any existing superusers to ADMIN profile.
         for superuser in User.objects.filter(is_superuser=True):
             profile, _ = UserProfile.objects.get_or_create(user=superuser)
             profile.role = Role.ADMIN
             profile.department = profile.department or 'Administration'
             profile.save()
-            self.stdout.write(self.style.SUCCESS(f"Updated superuser '{superuser.username}' to ADMIN role."))
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"Updated superuser '{superuser.username}' to ADMIN role."
+                )
+            )
 
         # 2. Demo Admin
         admin_user, created = User.objects.get_or_create(
@@ -28,11 +41,12 @@ class Command(BaseCommand):
         if created:
             admin_user.set_password('password123')
             admin_user.save()
+
         profile, _ = UserProfile.objects.get_or_create(user=admin_user)
         profile.role = Role.ADMIN
         profile.department = 'Administration'
         profile.save()
-        self.stdout.write(self.style.SUCCESS("Admin ready: admin / password123"))
+        self.stdout.write(self.style.SUCCESS("Admin ready: admin"))
 
         # 3. Demo Mentor
         mentor_user, created = User.objects.get_or_create(
@@ -46,13 +60,16 @@ class Command(BaseCommand):
         if created:
             mentor_user.set_password('password123')
             mentor_user.save()
+
         profile, _ = UserProfile.objects.get_or_create(user=mentor_user)
         profile.role = Role.MENTOR
         profile.department = 'Computer Science'
         profile.designation = 'Assistant Professor'
         profile.phone = '+91 98765 43210'
         profile.save()
-        self.stdout.write(self.style.SUCCESS("Mentor ready: mentor_rahul / password123"))
+        self.stdout.write(
+            self.style.SUCCESS("Mentor ready: mentor_rahul")
+        )
 
         # 4. Demo Student
         student_user, created = User.objects.get_or_create(
@@ -66,10 +83,13 @@ class Command(BaseCommand):
         if created:
             student_user.set_password('password123')
             student_user.save()
+
         profile, _ = UserProfile.objects.get_or_create(user=student_user)
         profile.role = Role.STUDENT
         profile.department = 'Computer Science'
         profile.roll_number = 'CS2026-042'
         profile.phone = '+91 91234 56789'
         profile.save()
-        self.stdout.write(self.style.SUCCESS("Student ready: student_aarav / password123"))
+        self.stdout.write(
+            self.style.SUCCESS("Student ready: student_aarav")
+        )
