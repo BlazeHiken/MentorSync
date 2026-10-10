@@ -4,11 +4,18 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from django.db import connections
 from django.db.utils import OperationalError
-from .models import Division, Assignment, Feedback, SatisfactionSurvey
-from .serializers import DivisionSerializer, AssignmentSerializer, BulkAssignmentSerializer, FeedbackSerializer, SatisfactionSurveySerializer
+from .models import Division, Assignment, Feedback, SatisfactionSurvey, Issue, MentoringSession
+from .serializers import DivisionSerializer, AssignmentSerializer, BulkAssignmentSerializer, FeedbackSerializer, SatisfactionSurveySerializer, IssueSerializer, MentoringSessionSerializer
 from .permissions import IsAdminUser
 from django.contrib.auth.models import User
 from accounts.models import Role
+from .permissions import (
+    IsAdminUser,
+    IsStudentUser,
+    IsMentorUser,
+    IsAdminOrAssignedMentor,
+    CanManageMentoringSession,
+)
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -130,3 +137,75 @@ class SatisfactionSurveyViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(student=self.request.user)
+
+
+class IssueViewSet(viewsets.ModelViewSet):
+    serializer_class = IssueSerializer
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return [permissions.IsAuthenticated()]
+        if self.action == 'create':
+            return [IsStudentUser()]
+        if self.action in ['update', 'partial_update']:
+            return [IsAdminOrAssignedMentor()]
+        if self.action == 'destroy':
+            return [IsAdminUser()]
+        return [permissions.IsAuthenticated()]
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if not hasattr(user, 'profile'):
+            return Issue.objects.none()
+
+        if user.profile.role == Role.ADMIN or user.is_superuser:
+            return Issue.objects.all()
+
+        if user.profile.role == Role.MENTOR:
+            return Issue.objects.filter(
+                student__division_assignment__division__mentor=user
+            )
+
+        if user.profile.role == Role.STUDENT:
+            return Issue.objects.filter(student=user)
+
+        return Issue.objects.none()
+
+    def perform_create(self, serializer):
+        serializer.save(student=self.request.user)
+
+
+class MentoringSessionViewSet(viewsets.ModelViewSet):
+    serializer_class = MentoringSessionSerializer
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return [permissions.IsAuthenticated()]
+        if self.action == 'create':
+            return [IsMentorUser()]
+        if self.action in ['update', 'partial_update']:
+            return [CanManageMentoringSession()]
+        if self.action == 'destroy':
+            return [IsAdminUser()]
+        return [permissions.IsAuthenticated()]
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if not hasattr(user, 'profile'):
+            return MentoringSession.objects.none()
+
+        if user.profile.role == Role.ADMIN or user.is_superuser:
+            return MentoringSession.objects.all()
+
+        if user.profile.role == Role.MENTOR:
+            return MentoringSession.objects.filter(mentor=user)
+
+        if user.profile.role == Role.STUDENT:
+            return MentoringSession.objects.filter(student=user)
+
+        return MentoringSession.objects.none()
+
+    def perform_create(self, serializer):
+        serializer.save(mentor=self.request.user)

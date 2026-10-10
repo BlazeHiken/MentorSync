@@ -64,3 +64,48 @@ class SatisfactionSurvey(models.Model):
 
     def __str__(self):
         return f"Survey by {self.student.username}"
+
+class IssueCategory(models.TextChoices):
+    ACADEMIC = 'ACADEMIC', 'Academic'
+    FACILITIES = 'FACILITIES', 'Facilities'
+    MENTORING = 'MENTORING', 'Mentoring'
+    ADMINISTRATIVE = 'ADMINISTRATIVE', 'Administrative'
+    OTHER = 'OTHER', 'Other'
+
+class IssuePriority(models.TextChoices):
+    LOW = 'LOW', 'Low'
+    MEDIUM = 'MEDIUM', 'Medium'
+    HIGH = 'HIGH', 'High'
+    URGENT = 'URGENT', 'Urgent'
+
+class IssueStatus(models.TextChoices):
+    OPEN = 'OPEN', 'Open'
+    IN_PROGRESS = 'IN_PROGRESS', 'In Progress'
+    RESOLVED = 'RESOLVED', 'Resolved'
+
+class Issue(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='issues', limit_choices_to={'profile__role': 'STUDENT'})
+    title = models.CharField(max_length=200)
+    category = models.CharField(max_length=50, choices=IssueCategory.choices)
+    description = models.TextField()
+    priority = models.CharField(max_length=20, choices=IssuePriority.choices, default=IssuePriority.MEDIUM)
+    status = models.CharField(max_length=20, choices=IssueStatus.choices, default=IssueStatus.OPEN)
+    mentor_action = models.TextField(blank=True, null=True)
+    mentor_response = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Issue: {self.title} by {self.student.username}"
+
+class MentoringSession(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sessions_received', limit_choices_to={'profile__role': 'STUDENT'})
+    mentor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sessions_conducted', limit_choices_to={'profile__role': 'MENTOR'})
+    date = models.DateField()
+    discussion = models.TextField()
+    observation = models.TextField(blank=True, null=True)
+    action_follow_up = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Session: {self.student.username} with {self.mentor.username} on {self.date}"
