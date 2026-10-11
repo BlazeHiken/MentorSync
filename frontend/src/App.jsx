@@ -5,9 +5,11 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { DashboardLayout } from './components/DashboardLayout';
 import { MentorDashboard } from './pages/mentor/MentorDashboard';
+import { MentorStudents } from './pages/mentor/Students';
 import { Login } from './pages/Login';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { Divisions } from './pages/admin/Divisions';
+import { Users } from './pages/admin/Users';
 
 import { StudentFeedback } from './pages/student/Feedback';
 import { StudentSurvey } from './pages/student/Survey';
@@ -66,6 +68,15 @@ function App() {
             />
 
             <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute allowedRoles={['ADMIN']}>
+                  <Users />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
               path="/admin/divisions"
               element={
                 <ProtectedRoute allowedRoles={['ADMIN']}>
@@ -107,6 +118,15 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={['MENTOR']}>
                   <MentorDashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/mentor/students"
+              element={
+                <ProtectedRoute allowedRoles={['MENTOR']}>
+                  <MentorStudents />
                 </ProtectedRoute>
               }
             />

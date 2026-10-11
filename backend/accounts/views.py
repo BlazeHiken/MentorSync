@@ -7,7 +7,8 @@ from .models import UserProfile, Role
 from .serializers import (
     CustomTokenObtainPairSerializer,
     UserSerializer,
-    UserCreateSerializer
+    UserCreateSerializer,
+    UserAdminUpdateSerializer,
 )
 from .permissions import IsAdminRole
 
@@ -44,3 +45,8 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdminRole]
     queryset = User.objects.all().select_related('profile')
     serializer_class = UserSerializer
+
+    def get_serializer_class(self):
+        if self.request.method in ['PUT', 'PATCH']:
+            return UserAdminUpdateSerializer
+        return UserSerializer

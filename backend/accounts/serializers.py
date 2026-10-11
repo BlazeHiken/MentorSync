@@ -21,6 +21,47 @@ class UserSerializer(serializers.ModelSerializer):
             return obj.profile.role
         return Role.ADMIN if obj.is_superuser else Role.STUDENT
 
+
+class UserAdminUpdateSerializer(serializers.ModelSerializer):
+    role = serializers.ChoiceField(
+        choices=Role.choices,
+        source='profile.role',
+        required=False,
+    )
+    phone = serializers.CharField(
+        source='profile.phone', required=False, allow_blank=True,
+    )
+    department = serializers.CharField(
+        source='profile.department', required=False, allow_blank=True,
+    )
+    roll_number = serializers.CharField(
+        source='profile.roll_number', required=False, allow_blank=True,
+    )
+    designation = serializers.CharField(
+        source='profile.designation', required=False, allow_blank=True,
+    )
+
+    class Meta:
+        model = User
+        fields = [
+            'id', 'username', 'email', 'first_name', 'last_name',
+            'role', 'phone', 'department', 'roll_number', 'designation',
+        ]
+        read_only_fields = ['id', 'username']
+
+    def update(self, instance, validated_data):
+        profile_data = validated_data.pop('profile', {})
+        for field, value in validated_data.items():
+            setattr(instance, field, value)
+        instance.save()
+
+        profile, _ = UserProfile.objects.get_or_create(user=instance)
+        for field, value in profile_data.items():
+            setattr(profile, field, value)
+        if profile_data:
+            profile.save()
+        return instance
+
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
