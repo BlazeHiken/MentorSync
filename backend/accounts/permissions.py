@@ -2,12 +2,20 @@ from rest_framework.permissions import BasePermission
 from .models import Role
 
 class IsAdminRole(BasePermission):
+    """Allow only application admins and Django superusers."""
+
     def has_permission(self, request, view):
-        if not (request.user and request.user.is_authenticated):
+        user = request.user
+
+        if not user or not user.is_authenticated:
             return False
-        if request.user.is_superuser or request.user.is_staff:
+
+        if user.is_superuser:
             return True
-        return hasattr(request.user, 'profile') and request.user.profile.role == Role.ADMIN
+
+        profile = getattr(user, "profile", None)
+        return bool(profile and profile.role == Role.ADMIN)
+
 
 class IsMentorRole(BasePermission):
     def has_permission(self, request, view):

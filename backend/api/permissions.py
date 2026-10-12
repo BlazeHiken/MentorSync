@@ -89,3 +89,25 @@ class CanManageMentoringSession(BasePermission):
             user.profile.role == Role.MENTOR
             and obj.mentor_id == user.id
         )
+
+class StudentSubmissionPermission(BasePermission):
+    """
+    Allow authenticated users to read permitted submissions.
+    Only students may create submissions.
+    No user may update or delete submissions through this permission.
+    """
+
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+
+        if request.method in ('GET', 'HEAD', 'OPTIONS'):
+            return True
+
+        if request.method == 'POST':
+            profile = getattr(request.user, 'profile', None)
+            return bool(
+                profile and profile.role == Role.STUDENT
+            )
+
+        return False

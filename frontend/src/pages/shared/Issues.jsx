@@ -127,7 +127,7 @@ export function Issues() {
         setNotice('');
 
         try {
-            const response = await fetchApi(`/ api / issues / ${issue.id}/`, {
+            const response = await fetchApi(`/api/issues/${issue.id}/`, {
                 method: 'PATCH',
                 body: JSON.stringify(edit),
             });

@@ -6,7 +6,6 @@ from django.db import connections
 from django.db.utils import OperationalError
 from .models import Division, Assignment, Feedback, SatisfactionSurvey, Issue, MentoringSession
 from .serializers import DivisionSerializer, AssignmentSerializer, BulkAssignmentSerializer, FeedbackSerializer, SatisfactionSurveySerializer, IssueSerializer, MentoringSessionSerializer
-from .permissions import IsAdminUser
 from django.contrib.auth.models import User
 from accounts.models import Role
 from .permissions import (
@@ -15,6 +14,7 @@ from .permissions import (
     IsMentorUser,
     IsAdminOrAssignedMentor,
     CanManageMentoringSession,
+    StudentSubmissionPermission,
 )
 
 @api_view(['GET'])
@@ -102,7 +102,7 @@ class AssignmentViewSet(viewsets.ModelViewSet):
 
 class FeedbackViewSet(viewsets.ModelViewSet):
     serializer_class = FeedbackSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [StudentSubmissionPermission]
 
     def get_queryset(self):
         user = self.request.user
@@ -121,7 +121,7 @@ class FeedbackViewSet(viewsets.ModelViewSet):
 
 class SatisfactionSurveyViewSet(viewsets.ModelViewSet):
     serializer_class = SatisfactionSurveySerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [StudentSubmissionPermission]
 
     def get_queryset(self):
         user = self.request.user
