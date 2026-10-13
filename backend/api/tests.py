@@ -369,26 +369,26 @@ class SatisfactionSurveyAPITestCase(TestCase):
         )
         self.assertEqual(SatisfactionSurvey.objects.count(), 0)
 
-        def test_student_sees_only_own_surveys(self):
-            SatisfactionSurvey.objects.create(
-                student=self.student,
-                mentor_satisfaction_rating=5,
-                mentor_helpfulness_rating=4,
-                comments="Mine",
-            )
-            SatisfactionSurvey.objects.create(
-                student=self.other_student,
-                mentor_satisfaction_rating=2,
-                mentor_helpfulness_rating=2,
-                comments="Other",
-            )
-            self.client.force_authenticate(user=self.student)
+    def test_student_sees_only_own_surveys(self):
+        SatisfactionSurvey.objects.create(
+            student=self.student,
+            mentor_satisfaction_rating=5,
+            mentor_helpfulness_rating=4,
+            comments="Mine",
+        )
+        SatisfactionSurvey.objects.create(
+            student=self.other_student,
+            mentor_satisfaction_rating=2,
+            mentor_helpfulness_rating=2,
+            comments="Other",
+        )
+        self.client.force_authenticate(user=self.student)
 
-            response = self.client.get("/api/surveys/")
+        response = self.client.get("/api/surveys/")
 
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(len(response.data), 1)
-            self.assertEqual(response.data[0]["student"], self.student.id)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["student"], self.student.id)
 
 
 class IssueAndMentoringSessionAPITestCase(TestCase):
