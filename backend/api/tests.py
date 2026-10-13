@@ -615,3 +615,174 @@ class IssueAndMentoringSessionAPITestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["student"], self.student.id)
+
+
+class DashboardAPITestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+
+        # Admin
+        self.admin = self.create_user("dash_admin", Role.ADMIN)
+
+        # Mentors
+        self.mentor_a = self.create_user("dash_mentor_a", Role.MENTOR, department="Computer Science", designation="Professor")
+        self.mentor_b = self.create_user("dash_mentor_b", Role.MENTOR, department="Electrical", designation="Associate Professor")
+        self.empty_mentor = self.create_user("dash_mentor_empty", Role.MENTOR)
+
+        # Students
+        self.student_a = self.create_user("dash_student_a", Role.STUDENT, roll_number="CS-001", department="Computer Science")
+        self.student_b = self.create_user("dash_student_b", Role.STUDENT, roll_number="EE-001", department="Electrical")
+        self.unassigned_student = self.create_user("dash_student_unassigned", Role.STUDENT)
+
+        # Divisions & Assignments
+        self.division_a = Division.objects.create(name="Cohort A", mentor=self.mentor_a)
+        Assignment.objects.create(student=self.student_a, division=self.division_a)
+
+        self.division_b = Division.objects.create(name="Cohort B", mentor=self.mentor_b)
+        Assignment.objects.create(student=self.student_b, division=self.division_b)
+
+        # Issues
+        Issue.objects.create(
+            student=self.student_a,
+            title="Student A Issue Open",
+            category="ACADEMIC",
+            description="Help needed",
+            status="OPEN",
+        )
+        Issue.objects.create(
+            student=self.student_b,
+            title="Student B Issue Open",
+            category="FACILITIES",
+            description="Lab issue",
+            status="OPEN",
+            mentor_action="Fixed AC",
+            mentor_response="Done",
+        )
+
+        # Feedback & Survey
+        Feedback.objects.create(
+            student=self.student_a,
+            category="ACADEMIC",
+            rating=5,
+            comments="Excellent",
+        )
+        SatisfactionSurvey.objects.create(
+            student=self.student_a,
+            mentor_satisfaction_rating=4,
+            mentor_helpfulness_rating=5,
+            comments="Helpful mentor",
+        )
+
+        # Mentoring Session
+        MentoringSession.objects.create(
+            student=self.student_a,
+            mentor=self.mentor_a,
+            date=date.today(),
+            discussion="Career guidance",
+            observation="Good progress",
+            action_follow_up="Prepare resume",
+        )
+
+    @staticmethod
+    def create_user(username, role, department="", designation="", roll_number=""):
+        user = User.objects.create_user(
+            username=username,
+            password="password",
+            email=f"{username}@example.com",
+            first_name=username.capitalize(),
+        )
+        user.profile.role = role
+        user.profile.department = department
+        user.profile.designation = designation
+        user.profile.roll_number = roll_number
+        user.profile.save()
+        return user
+
+    def test_unauthenticated_cannot_access_dashboard(self):
+        response = self.client.get("/api/dashboard/")
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_admin_dashboard_metrics(self):
+        self.client.force_authenticate(user=self.admin)
+        response = self.client.get("/api/dashboard/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["role"], "ADMIN")
+        self.assertEqual(response.data["total_students"], 3)
+        self.assertEqual(response.data["total_mentors"], 3)
+        self.assertEqual(response.data["total_divisions"], 2)
+        self.assertEqual(response.data["open_issues"], 2)
+        self.assertEqual(response.data["total_feedback"], 1)
+        self.assertEqual(response.data["average_satisfaction"], 4.0)
+
+    def test_mentor_dashboard_metrics_and_isolation(self):
+        self.client.force_authenticate(user=self.mentor_a)
+        response = self.client.get("/api/dashboard/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["role"], "MENTOR")
+        self.assertEqual(response.data["assigned_mentees_count"], 1)
+        self.assertEqual(response.data["open_issues_count"], 1)
+        # Student A's issue has no mentor_action/mentor_response -> pending follow-up
+        self.assertEqual(response.data["pending_followups_count"], 1)
+        self.assertEqual(response.data["logged_sessions_count"], 1)
+        self.assertEqual(response.data["feedback_count"], 1)
+        self.assertEqual(len(response.data["recent_sessions"]), 1)
+        self.assertEqual(
+            response.data["recent_sessions"][0]["student_details"]["username"],
+            self.student_a.username,
+        )
+
+        # Test Mentor B isolation
+        self.client.force_authenticate(user=self.mentor_b)
+        response_b = self.client.get("/api/dashboard/")
+        self.assertEqual(response_b.status_code, status.HTTP_200_OK)
+        self.assertEqual(response_b.data["assigned_mentees_count"], 1)
+        # Student B's issue has mentor_action and response -> 0 pending follow-ups
+        self.assertEqual(response_b.data["pending_followups_count"], 0)
+        self.assertEqual(response_b.data["logged_sessions_count"], 0)
+        self.assertEqual(len(response_b.data["recent_sessions"]), 0)
+
+    def test_mentor_dashboard_empty_data(self):
+        self.client.force_authenticate(user=self.empty_mentor)
+        response = self.client.get("/api/dashboard/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["assigned_mentees_count"], 0)
+        self.assertEqual(response.data["open_issues_count"], 0)
+        self.assertEqual(response.data["pending_followups_count"], 0)
+        self.assertEqual(response.data["logged_sessions_count"], 0)
+        self.assertEqual(response.data["feedback_count"], 0)
+        self.assertEqual(len(response.data["recent_sessions"]), 0)
+
+    def test_student_dashboard_metrics_and_isolation(self):
+        self.client.force_authenticate(user=self.student_a)
+        response = self.client.get("/api/dashboard/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["role"], "STUDENT")
+        self.assertIsNotNone(response.data["assigned_mentor"])
+        self.assertEqual(response.data["assigned_mentor"]["username"], self.mentor_a.username)
+        self.assertEqual(response.data["assigned_mentor"]["name"], self.mentor_a.get_full_name() or self.mentor_a.username)
+        self.assertEqual(response.data["assigned_mentor"]["designation"], "Professor")
+        self.assertEqual(response.data["division_name"], "Cohort A")
+        self.assertEqual(response.data["issue_count"], 1)
+        self.assertEqual(response.data["feedback_count"], 1)
+        self.assertTrue(response.data["survey_completed"])
+        self.assertTrue(response.data["has_survey"])
+        self.assertEqual(response.data["survey_rating"], 4)
+        self.assertIsNotNone(response.data["recent_session"])
+        self.assertEqual(response.data["recent_session"]["discussion"], "Career guidance")
+
+    def test_student_dashboard_unassigned_state(self):
+        self.client.force_authenticate(user=self.unassigned_student)
+        response = self.client.get("/api/dashboard/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsNone(response.data["assigned_mentor"])
+        self.assertIsNone(response.data["division_name"])
+        self.assertIsNone(response.data["recent_session"])
+        self.assertEqual(response.data["issue_count"], 0)
+        self.assertEqual(response.data["feedback_count"], 0)
+        self.assertFalse(response.data["survey_completed"])
+        self.assertFalse(response.data["has_survey"])
