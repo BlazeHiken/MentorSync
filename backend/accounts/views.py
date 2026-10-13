@@ -9,6 +9,7 @@ from .serializers import (
     UserSerializer,
     UserCreateSerializer,
     UserAdminUpdateSerializer,
+    UserUpdateSerializer,
 )
 from .permissions import IsAdminRole
 
@@ -38,7 +39,13 @@ class UserListCreateView(generics.ListCreateAPIView):
             queryset = queryset.filter(profile__role=role.upper())
         search = self.request.query_params.get('search', None)
         if search:
-            queryset = queryset.filter(username__icontains=search) | queryset.filter(email__icontains=search)
+            queryset = (
+                queryset.filter(username__icontains=search)
+                | queryset.filter(email__icontains=search)
+                | queryset.filter(first_name__icontains=search)
+                | queryset.filter(last_name__icontains=search)
+                | queryset.filter(profile__roll_number__icontains=search)
+            )
         return queryset
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -50,3 +57,12 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
         if self.request.method in ['PUT', 'PATCH']:
             return UserAdminUpdateSerializer
         return UserSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.id == request.user.id:
+            return Response(
+                {"detail": "You cannot delete your own account."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return super().destroy(request, *args, **kwargs)

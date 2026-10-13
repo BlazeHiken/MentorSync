@@ -136,3 +136,42 @@ class UserCreateSerializer(serializers.ModelSerializer):
         profile.save()
 
         return user
+
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    role = serializers.ChoiceField(choices=Role.choices, required=False)
+    phone = serializers.CharField(required=False, allow_blank=True)
+    department = serializers.CharField(required=False, allow_blank=True)
+    roll_number = serializers.CharField(required=False, allow_blank=True)
+    designation = serializers.CharField(required=False, allow_blank=True)
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'role', 'phone', 'department', 'roll_number', 'designation']
+        read_only_fields = ['id', 'username']
+
+    def update(self, instance, validated_data):
+        role = validated_data.pop('role', None)
+        phone = validated_data.pop('phone', None)
+        department = validated_data.pop('department', None)
+        roll_number = validated_data.pop('roll_number', None)
+        designation = validated_data.pop('designation', None)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        profile, _ = UserProfile.objects.get_or_create(user=instance)
+        if role is not None:
+            profile.role = role
+        if phone is not None:
+            profile.phone = phone
+        if department is not None:
+            profile.department = department
+        if roll_number is not None:
+            profile.roll_number = roll_number
+        if designation is not None:
+            profile.designation = designation
+        profile.save()
+
+        return instance

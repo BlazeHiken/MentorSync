@@ -8,8 +8,8 @@ import { MentorDashboard } from './pages/mentor/MentorDashboard';
 import { MentorStudents } from './pages/mentor/Students';
 import { Login } from './pages/Login';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
-import { Divisions } from './pages/admin/Divisions';
 import { Users } from './pages/admin/Users';
+import { Divisions } from './pages/admin/Divisions';
 
 import { StudentFeedback } from './pages/student/Feedback';
 import { StudentSurvey } from './pages/student/Survey';

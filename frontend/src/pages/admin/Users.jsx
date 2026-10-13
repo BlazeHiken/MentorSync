@@ -16,6 +16,7 @@ import { useAuth } from '../../context/AuthContext';
 
 const emptyForm = {
   username: '',
+  password: '',
   email: '',
   first_name: '',
   last_name: '',
@@ -24,7 +25,6 @@ const emptyForm = {
   department: '',
   roll_number: '',
   designation: '',
-  password: '',
 };
 
 const roleLabels = {
@@ -77,7 +77,8 @@ export function Users() {
     return users.filter(item => {
       const matchesRole = roleFilter === 'ALL' || item.role === roleFilter;
       const fullName = `${item.first_name || ''} ${item.last_name || ''}`.trim();
-      const matchesSearch = !query || [item.username, item.email, fullName]
+      const rollNo = item.profile?.roll_number || '';
+      const matchesSearch = !query || [item.username, item.email, fullName, rollNo]
         .some(value => value?.toLowerCase().includes(query));
       return matchesRole && matchesSearch;
     });
@@ -142,7 +143,10 @@ export function Users() {
     setIsSubmitting(true);
     setErrorMsg('');
     const payload = { ...form };
-    if (activeUser) delete payload.password;
+    if (activeUser) {
+      delete payload.password;
+      delete payload.username;
+    }
     try {
       const response = await fetchApi(
         activeUser ? `/api/users/${activeUser.id}/` : '/api/users/',
@@ -153,7 +157,7 @@ export function Users() {
       setActiveUser(null);
       setIsFormOpen(false);
       setForm(emptyForm);
-      setSuccessMsg(activeUser ? 'User details updated.' : 'User created successfully.');
+      setSuccessMsg(activeUser ? 'User details updated successfully.' : 'User created successfully.');
       await loadUsers();
     } catch (error) {
       setErrorMsg(error.message || 'Network error while saving user.');
@@ -264,7 +268,7 @@ export function Users() {
               aria-label="Search users"
               value={search}
               onChange={event => setSearch(event.target.value)}
-              placeholder="Search name, username, or email"
+              placeholder="Search name, roll no, or email"
               style={{ ...inputStyle, paddingLeft: '37px' }}
             />
           </label>
