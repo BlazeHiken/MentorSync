@@ -152,12 +152,46 @@ export function MentorStudents() {
                   return (
                     <tr key={item.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.055)' }}>
                       <td style={{ padding: '14px 18px' }}>
-                        <div style={{ color: '#f8fafc', fontWeight: 600 }}>{fullName || student.username || 'Student'}</div>
-                        <div style={{ color: 'var(--text-dim)', fontSize: '0.8rem', marginTop: '3px' }}>
-                          {profile.roll_number || 'No roll number'}{student.username ? ` · @${student.username}` : ''}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <div style={{
+                            width: '34px',
+                            height: '34px',
+                            borderRadius: '10px',
+                            background: 'rgba(56, 189, 248, 0.12)',
+                            border: '1px solid rgba(56, 189, 248, 0.25)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#38bdf8',
+                            fontSize: '0.75rem',
+                            fontWeight: 700,
+                            flexShrink: 0
+                          }}>
+                            {(fullName || student.username || 'S').slice(0, 2).toUpperCase()}
+                          </div>
+                          <div>
+                            <div style={{ color: '#f8fafc', fontWeight: 600 }}>{fullName || student.username || 'Student'}</div>
+                            <div style={{ color: 'var(--text-dim)', fontSize: '0.8rem', marginTop: '2px' }}>
+                              {profile.roll_number || 'No roll number'}{student.username ? ` · @${student.username}` : ''}
+                            </div>
+                          </div>
                         </div>
                       </td>
-                      <td style={{ padding: '14px 18px', color: '#c4b5fd', fontSize: '0.87rem' }}>{item.division_details?.name || '—'}</td>
+                      <td style={{ padding: '14px 18px' }}>
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          padding: '3px 8px',
+                          borderRadius: '9999px',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          color: '#c084fc',
+                          background: 'rgba(168, 85, 247, 0.12)',
+                          border: '1px solid rgba(168, 85, 247, 0.25)'
+                        }}>
+                          {item.division_details?.name || '—'}
+                        </span>
+                      </td>
                       <td style={{ padding: '14px 18px', color: 'var(--text-muted)', fontSize: '0.87rem' }}>{profile.department || '—'}</td>
                       <td style={{ padding: '14px 18px', color: 'var(--text-muted)', fontSize: '0.84rem' }}>
                         <div>{student.email || 'No email'}</div>

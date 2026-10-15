@@ -261,14 +261,18 @@ export function Issues() {
                                                 {' · '}{new Date(issue.created_at).toLocaleDateString()}
                                             </p>
                                         </div>
-                                        <span style={styles.status}>{label(issue.status)}</span>
+                                        <span className={`badge badge-${issue.status.toLowerCase().replace('_', '-')}`}>
+                                            {label(issue.status)}
+                                        </span>
                                     </div>
 
                                     <p style={styles.description}>{issue.description}</p>
 
                                     <div style={styles.tags}>
                                         <span style={styles.tag}>{label(issue.category)}</span>
-                                        <span style={styles.tag}>Priority: {label(issue.priority)}</span>
+                                        <span className={`badge badge-${issue.priority.toLowerCase()}`}>
+                                            Priority: {label(issue.priority)}
+                                        </span>
                                     </div>
 
                                     {canManage ? (

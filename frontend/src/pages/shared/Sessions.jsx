@@ -256,17 +256,17 @@ export function Sessions() {
                                 <p style={styles.text}>{session.discussion}</p>
 
                                 {session.observation && (
-                                    <>
-                                        <h4 style={styles.subheading}>Observations</h4>
-                                        <p style={styles.text}>{session.observation}</p>
-                                    </>
+                                    <div style={{ marginTop: 14, padding: '12px 14px', borderRadius: 8, background: 'rgba(99,102,241,0.07)', borderLeft: '3px solid #818cf8' }}>
+                                        <h4 style={{ color: '#c7d2fe', margin: '0 0 4px', fontSize: '.85rem', fontWeight: 700 }}>Observation</h4>
+                                        <p style={{ color: 'var(--text-muted)', whiteSpace: 'pre-wrap', lineHeight: 1.55, margin: 0, fontSize: '.9rem' }}>{session.observation}</p>
+                                    </div>
                                 )}
 
                                 {session.action_follow_up && (
-                                    <>
-                                        <h4 style={styles.subheading}>Action / Follow-up</h4>
-                                        <p style={styles.text}>{session.action_follow_up}</p>
-                                    </>
+                                    <div style={{ marginTop: 12, padding: '12px 14px', borderRadius: 8, background: 'rgba(16,185,129,0.08)', borderLeft: '3px solid #10b981' }}>
+                                        <h4 style={{ color: '#6ee7b7', margin: '0 0 4px', fontSize: '.85rem', fontWeight: 700 }}>Action / Follow-up Plan</h4>
+                                        <p style={{ color: 'var(--text-muted)', whiteSpace: 'pre-wrap', lineHeight: 1.55, margin: 0, fontSize: '.9rem' }}>{session.action_follow_up}</p>
+                                    </div>
                                 )}
                             </article>
                         ))}

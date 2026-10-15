@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fetchApi } from '../../api/client';
-import { Layers, Plus, Edit, Users, UserPlus, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
+import { Layers, Plus, Edit, Users, UserPlus, AlertCircle, CheckCircle2, Loader2, X } from 'lucide-react';
 
 export function Divisions() {
   const [divisions, setDivisions] = useState([]);
@@ -246,30 +246,34 @@ export function Divisions() {
 
       {/* Create Division Modal */}
       {showCreateModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
-          <div className="glass-panel" style={{ width: '100%', maxWidth: '400px', padding: '24px' }}>
-            <h2 style={{ marginTop: 0, marginBottom: '16px', color: '#fff' }}>Create Division</h2>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(2,6,23,0.76)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '20px' }}>
+          <div className="glass-panel" style={{ width: '100%', maxWidth: '440px', padding: '28px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+              <h2 style={{ margin: 0, color: '#fff', fontSize: '1.25rem' }}>Create Division</h2>
+              <button type="button" className="btn" onClick={() => setShowCreateModal(false)} style={{ padding: '6px', color: 'var(--text-muted)' }}><X size={18} /></button>
+            </div>
             {errorMsg && (
-              <div style={{ padding: '8px 12px', background: 'rgba(239, 68, 68, 0.1)', color: '#f87171', borderRadius: '6px', marginBottom: '16px', fontSize: '0.9rem' }}>
+              <div style={{ padding: '10px 12px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.25)', color: '#f87171', borderRadius: 'var(--radius-sm)', marginBottom: '16px', fontSize: '0.85rem' }}>
                 {errorMsg}
               </div>
             )}
             <form onSubmit={handleCreateDivision}>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Division Name</label>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 600 }}>Division Name</label>
                 <input 
                   type="text" 
                   value={newDivisionName}
                   onChange={e => setNewDivisionName(e.target.value)}
                   disabled={isSubmitting}
-                  style={{ width: '100%', padding: '10px', borderRadius: '6px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }}
+                  className="input-field"
+                  placeholder="e.g. Division A, Division B"
                   required
                 />
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
                 <button type="button" className="btn" disabled={isSubmitting} onClick={() => setShowCreateModal(false)}>Cancel</button>
                 <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
-                  {isSubmitting ? 'Creating...' : 'Create'}
+                  {isSubmitting ? 'Creating...' : 'Create Division'}
                 </button>
               </div>
             </form>
@@ -279,30 +283,34 @@ export function Divisions() {
 
       {/* Assign Mentor Modal */}
       {showAssignMentorModal && selectedDivision && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
-          <div className="glass-panel" style={{ width: '100%', maxWidth: '400px', padding: '24px' }}>
-            <h2 style={{ marginTop: 0, marginBottom: '16px', color: '#fff' }}>Assign Mentor to {selectedDivision.name}</h2>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(2,6,23,0.76)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '20px' }}>
+          <div className="glass-panel" style={{ width: '100%', maxWidth: '440px', padding: '28px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+              <h2 style={{ margin: 0, color: '#fff', fontSize: '1.25rem' }}>Assign Mentor • {selectedDivision.name}</h2>
+              <button type="button" className="btn" onClick={() => setShowAssignMentorModal(false)} style={{ padding: '6px', color: 'var(--text-muted)' }}><X size={18} /></button>
+            </div>
             {errorMsg && (
-              <div style={{ padding: '8px 12px', background: 'rgba(239, 68, 68, 0.1)', color: '#f87171', borderRadius: '6px', marginBottom: '16px', fontSize: '0.9rem' }}>
+              <div style={{ padding: '10px 12px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.25)', color: '#f87171', borderRadius: 'var(--radius-sm)', marginBottom: '16px', fontSize: '0.85rem' }}>
                 {errorMsg}
               </div>
             )}
             <form onSubmit={handleAssignMentor}>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Select Mentor</label>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 600 }}>Select Faculty Mentor</label>
                 <select 
                   value={selectedMentor}
                   onChange={e => setSelectedMentor(e.target.value)}
                   disabled={isSubmitting}
-                  style={{ width: '100%', padding: '10px', borderRadius: '6px', background: '#1e1e1e', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }}
+                  className="input-field"
+                  style={{ background: '#0f172a' }}
                 >
                   <option value="">-- Unassigned --</option>
                   {mentors.map(m => (
-                    <option key={m.id} value={m.id}>{m.first_name || m.username}</option>
+                    <option key={m.id} value={m.id}>{m.first_name ? `${m.first_name} ${m.last_name || ''}`.trim() : m.username} ({m.email || 'No email'})</option>
                   ))}
                 </select>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
                 <button type="button" className="btn" disabled={isSubmitting} onClick={() => setShowAssignMentorModal(false)}>Cancel</button>
                 <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
                   {isSubmitting ? 'Saving...' : 'Save Assignment'}
@@ -315,39 +323,71 @@ export function Divisions() {
 
       {/* Assign Students Modal */}
       {showAssignStudentsModal && selectedDivision && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
-          <div className="glass-panel" style={{ width: '100%', maxWidth: '400px', padding: '24px' }}>
-            <h2 style={{ marginTop: 0, marginBottom: '16px', color: '#fff' }}>Add Students to {selectedDivision.name}</h2>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(2,6,23,0.76)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '20px' }}>
+          <div className="glass-panel" style={{ width: '100%', maxWidth: '480px', padding: '28px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+              <h2 style={{ margin: 0, color: '#fff', fontSize: '1.25rem' }}>Add Students • {selectedDivision.name}</h2>
+              <button type="button" className="btn" onClick={() => setShowAssignStudentsModal(false)} style={{ padding: '6px', color: 'var(--text-muted)' }}><X size={18} /></button>
+            </div>
             {errorMsg && (
-              <div style={{ padding: '8px 12px', background: 'rgba(239, 68, 68, 0.1)', color: '#f87171', borderRadius: '6px', marginBottom: '16px', fontSize: '0.9rem' }}>
+              <div style={{ padding: '10px 12px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.25)', color: '#f87171', borderRadius: 'var(--radius-sm)', marginBottom: '16px', fontSize: '0.85rem' }}>
                 {errorMsg}
               </div>
             )}
             <form onSubmit={handleAssignStudents}>
-              <div style={{ marginBottom: '16px', maxHeight: '300px', overflowY: 'auto' }}>
-                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Select Students</label>
-                {students.length === 0 ? <p style={{ color: 'var(--text-dim)' }}>No students available.</p> : (
-                  students.map(s => (
-                    <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                      <input 
-                        type="checkbox" 
-                        id={`student-${s.id}`}
-                        checked={selectedStudents.includes(s.id)}
-                        disabled={isSubmitting}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedStudents([...selectedStudents, s.id]);
-                          } else {
-                            setSelectedStudents(selectedStudents.filter(id => id !== s.id));
-                          }
-                        }}
-                      />
-                      <label htmlFor={`student-${s.id}`} style={{ color: '#fff', cursor: 'pointer' }}>{s.first_name || s.username} ({s.profile?.roll_number || 'No Roll'})</label>
-                    </div>
-                  ))
-                )}
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', marginBottom: '10px', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 600 }}>Select Students for Division</label>
+                <div style={{ maxHeight: '280px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '6px', paddingRight: '4px' }}>
+                  {students.length === 0 ? (
+                    <p style={{ color: 'var(--text-dim)', fontSize: '0.85rem' }}>No enrolled students available.</p>
+                  ) : (
+                    students.map(s => {
+                      const isChecked = selectedStudents.includes(s.id);
+                      return (
+                        <label 
+                          key={s.id} 
+                          htmlFor={`student-${s.id}`}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            padding: '10px 12px',
+                            borderRadius: 'var(--radius-sm)',
+                            background: isChecked ? 'rgba(99, 102, 241, 0.12)' : 'rgba(255,255,255,0.02)',
+                            border: `1px solid ${isChecked ? 'rgba(99, 102, 241, 0.35)' : 'var(--border-subtle)'}`,
+                            cursor: 'pointer',
+                            transition: 'all 0.15s ease'
+                          }}
+                        >
+                          <input 
+                            type="checkbox" 
+                            id={`student-${s.id}`}
+                            checked={isChecked}
+                            disabled={isSubmitting}
+                            style={{ accentColor: 'var(--accent-primary)', width: '16px', height: '16px', cursor: 'pointer' }}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedStudents([...selectedStudents, s.id]);
+                              } else {
+                                setSelectedStudents(selectedStudents.filter(id => id !== s.id));
+                              }
+                            }}
+                          />
+                          <div style={{ minWidth: 0, flex: 1 }}>
+                            <div style={{ color: '#fff', fontSize: '0.875rem', fontWeight: 500 }}>
+                              {s.first_name ? `${s.first_name} ${s.last_name || ''}`.trim() : s.username}
+                            </div>
+                            <div style={{ color: 'var(--text-dim)', fontSize: '0.75rem' }}>
+                              Roll: {s.profile?.roll_number || 'N/A'} • {s.email || `@${s.username}`}
+                            </div>
+                          </div>
+                        </label>
+                      );
+                    })
+                  )}
+                </div>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
                 <button type="button" className="btn" disabled={isSubmitting} onClick={() => setShowAssignStudentsModal(false)}>Cancel</button>
                 <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
                   {isSubmitting ? 'Assigning...' : 'Assign Students'}

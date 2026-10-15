@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { GraduationCap, Lock, User, ArrowRight, ShieldCheck, UserCheck, Sparkles } from 'lucide-react';
+import { GraduationCap, Lock, User, ArrowRight, ShieldCheck, UserCheck, Sparkles, Eye, EyeOff } from 'lucide-react';
 
 export function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -156,15 +157,36 @@ export function Login() {
               <div style={{ position: 'relative' }}>
                 <Lock size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-dim)' }} />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   className="input-field"
-                  style={{ paddingLeft: '44px' }}
+                  style={{ paddingLeft: '44px', paddingRight: '44px' }}
                   placeholder="••••••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
                   autoComplete="current-password"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    padding: '4px',
+                    cursor: 'pointer',
+                    color: showPassword ? 'var(--accent-primary)' : 'var(--text-dim)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
             </div>
 
@@ -220,8 +242,9 @@ export function Login() {
               style={{
                 padding: '10px 8px',
                 borderRadius: 'var(--radius-sm)',
-                background: 'rgba(168, 85, 247, 0.1)',
-                border: '1px solid rgba(168, 85, 247, 0.25)',
+                background: username === 'admin' ? 'rgba(168, 85, 247, 0.22)' : 'rgba(168, 85, 247, 0.08)',
+                border: username === 'admin' ? '1.5px solid #c084fc' : '1px solid rgba(168, 85, 247, 0.25)',
+                boxShadow: username === 'admin' ? '0 0 14px rgba(168, 85, 247, 0.35)' : 'none',
                 color: '#c084fc',
                 fontSize: '0.75rem',
                 fontWeight: 600,
@@ -229,7 +252,9 @@ export function Login() {
                 flexDirection: 'column',
                 alignItems: 'center',
                 gap: '4px',
-                transition: 'all 0.15s ease',
+                cursor: 'pointer',
+                transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                transform: username === 'admin' ? 'scale(1.02)' : 'scale(1)',
               }}
             >
               <ShieldCheck size={16} />
@@ -242,8 +267,9 @@ export function Login() {
               style={{
                 padding: '10px 8px',
                 borderRadius: 'var(--radius-sm)',
-                background: 'rgba(6, 182, 212, 0.1)',
-                border: '1px solid rgba(6, 182, 212, 0.25)',
+                background: username === 'mentor_rahul' ? 'rgba(6, 182, 212, 0.22)' : 'rgba(6, 182, 212, 0.08)',
+                border: username === 'mentor_rahul' ? '1.5px solid #38bdf8' : '1px solid rgba(6, 182, 212, 0.25)',
+                boxShadow: username === 'mentor_rahul' ? '0 0 14px rgba(6, 182, 212, 0.35)' : 'none',
                 color: '#38bdf8',
                 fontSize: '0.75rem',
                 fontWeight: 600,
@@ -251,7 +277,9 @@ export function Login() {
                 flexDirection: 'column',
                 alignItems: 'center',
                 gap: '4px',
-                transition: 'all 0.15s ease',
+                cursor: 'pointer',
+                transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                transform: username === 'mentor_rahul' ? 'scale(1.02)' : 'scale(1)',
               }}
             >
               <UserCheck size={16} />
@@ -264,8 +292,9 @@ export function Login() {
               style={{
                 padding: '10px 8px',
                 borderRadius: 'var(--radius-sm)',
-                background: 'rgba(16, 185, 129, 0.1)',
-                border: '1px solid rgba(16, 185, 129, 0.25)',
+                background: username === 'student_aarav' ? 'rgba(16, 185, 129, 0.22)' : 'rgba(16, 185, 129, 0.08)',
+                border: username === 'student_aarav' ? '1.5px solid #34d399' : '1px solid rgba(16, 185, 129, 0.25)',
+                boxShadow: username === 'student_aarav' ? '0 0 14px rgba(16, 185, 129, 0.35)' : 'none',
                 color: '#34d399',
                 fontSize: '0.75rem',
                 fontWeight: 600,
@@ -273,7 +302,9 @@ export function Login() {
                 flexDirection: 'column',
                 alignItems: 'center',
                 gap: '4px',
-                transition: 'all 0.15s ease',
+                cursor: 'pointer',
+                transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                transform: username === 'student_aarav' ? 'scale(1.02)' : 'scale(1)',
               }}
             >
               <Sparkles size={16} />
