@@ -44,6 +44,7 @@ export function Navbar() {
       { to: '/admin/divisions', label: 'Divisions', icon: Layers },
       { to: '/admin/feedback', label: 'Feedback', icon: MessageSquare },
       { to: '/admin/issues', label: 'Issues', icon: AlertCircle },
+      { to: '/admin/sessions', label: 'Sessions', icon: Calendar },
     ],
     MENTOR: [
       { to: '/mentor/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -57,6 +58,7 @@ export function Navbar() {
       { to: '/student/feedback', label: 'Feedback', icon: MessageSquare },
       { to: '/student/survey', label: 'Survey', icon: Star },
       { to: '/student/issues', label: 'Issues', icon: AlertCircle },
+      { to: '/student/sessions', label: 'Sessions', icon: Calendar },
     ],
   }[user.role] || [];
 
