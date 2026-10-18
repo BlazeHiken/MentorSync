@@ -62,11 +62,11 @@ export function Navbar() {
     ],
   }[user.role] || [];
 
-  const getInitials = (user) => {
-    if (user.first_name && user.last_name) {
-      return `${user.first_name[0]}${user.last_name[0]}`.toUpperCase();
+  const getInitials = (targetUser) => {
+    if (targetUser.first_name && targetUser.last_name) {
+      return `${targetUser.first_name[0]}${targetUser.last_name[0]}`.toUpperCase();
     }
-    return (user.username || 'U').slice(0, 2).toUpperCase();
+    return (targetUser.username || 'U').slice(0, 2).toUpperCase();
   };
 
   return (
@@ -74,49 +74,66 @@ export function Navbar() {
       position: 'sticky',
       top: 0,
       zIndex: 50,
-      background: 'rgba(15, 23, 42, 0.85)',
-      backdropFilter: 'blur(16px)',
-      WebkitBackdropFilter: 'blur(16px)',
-      borderBottom: '1px solid var(--border-subtle)',
+      background: '#0f294a',
+      borderBottom: '1px solid #1e3a5f',
+      boxShadow: '0 2px 8px rgba(7, 21, 38, 0.15)',
     }}>
       <div style={{
         maxWidth: '1280px',
         margin: '0 auto',
         padding: '0 24px',
-        height: '68px',
+        minHeight: '68px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '12px',
       }}>
-        {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        {/* Brand & Navigation */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '28px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '6px 0' }}>
             <div style={{
               width: '38px',
               height: '38px',
-              borderRadius: '10px',
-              background: 'linear-gradient(135deg, #6366f1, #06b6d4)',
+              borderRadius: '9px',
+              background: 'linear-gradient(135deg, #2563eb, #0284c7)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 4px 12px rgba(99, 102, 241, 0.4)'
+              boxShadow: '0 2px 8px rgba(37, 99, 235, 0.35)',
             }}>
               <GraduationCap size={22} color="#ffffff" />
             </div>
-            <span style={{
-              fontWeight: 800,
-              fontSize: '1.25rem',
-              letterSpacing: '-0.02em',
-              background: 'linear-gradient(to right, #ffffff, #94a3b8)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}>
-              MentorSync
-            </span>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{
+                fontWeight: 800,
+                fontSize: '1.2rem',
+                letterSpacing: '-0.02em',
+                color: '#ffffff',
+                lineHeight: 1.15,
+              }}>
+                MentorSync
+              </span>
+              <span style={{
+                fontSize: '0.68rem',
+                color: '#93c5fd',
+                letterSpacing: '0.04em',
+                textTransform: 'uppercase',
+                fontWeight: 600,
+              }}>
+                HigherEd Platform
+              </span>
+            </div>
           </div>
 
           {/* Navigation Items */}
-          <nav style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <nav style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            overflowX: 'auto',
+            padding: '4px 0',
+          }}>
             {navLinks.map((item) => {
               const Icon = item.icon;
               return (
@@ -126,15 +143,16 @@ export function Navbar() {
                   style={({ isActive }) => ({
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px',
-                    padding: '8px 14px',
+                    gap: '7px',
+                    padding: '8px 12px',
                     borderRadius: 'var(--radius-md)',
                     fontSize: '0.875rem',
                     fontWeight: 500,
                     transition: 'all 0.15s ease',
-                    color: isActive ? '#ffffff' : 'var(--text-muted)',
-                    background: isActive ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
-                    border: isActive ? '1px solid rgba(99, 102, 241, 0.3)' : '1px solid transparent',
+                    whiteSpace: 'nowrap',
+                    color: isActive ? '#ffffff' : '#cbd5e1',
+                    background: isActive ? 'rgba(255, 255, 255, 0.14)' : 'transparent',
+                    border: isActive ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid transparent',
                   })}
                 >
                   <Icon size={16} />
@@ -146,31 +164,31 @@ export function Navbar() {
         </div>
 
         {/* Right side user info & logout */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '6px 0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{
               width: '36px',
               height: '36px',
               borderRadius: '50%',
-              background: 'rgba(99, 102, 241, 0.2)',
-              border: '1px solid rgba(99, 102, 241, 0.4)',
+              background: 'rgba(255, 255, 255, 0.15)',
+              border: '1.5px solid rgba(255, 255, 255, 0.3)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: '0.8rem',
               fontWeight: 700,
-              color: '#c7d2fe'
+              color: '#ffffff',
             }}>
               {getInitials(user)}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-main)' }}>
-                  {user.first_name ? `${user.first_name} ${user.last_name || ''}` : user.username}
+                <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#ffffff' }}>
+                  {user.first_name ? `${user.first_name} ${user.last_name || ''}`.trim() : user.username}
                 </span>
                 {getRoleBadge(user.role)}
               </div>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+              <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
                 {user.department || user.email}
               </span>
             </div>
@@ -180,26 +198,31 @@ export function Navbar() {
             onClick={handleLogout}
             title="Log out"
             style={{
-              background: 'rgba(239, 68, 68, 0.1)',
-              border: '1px solid rgba(239, 68, 68, 0.2)',
-              color: '#f87171',
-              padding: '8px 12px',
+              background: 'rgba(255, 255, 255, 0.08)',
+              border: '1px solid rgba(255, 255, 255, 0.16)',
+              color: '#fca5a5',
+              padding: '7px 12px',
               borderRadius: 'var(--radius-md)',
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
               fontSize: '0.8rem',
               fontWeight: 500,
-              transition: 'all 0.2s ease',
+              transition: 'all 0.15s ease',
+              cursor: 'pointer',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.18)';
+              e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.35)';
+              e.currentTarget.style.color = '#ffffff';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
+              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.16)';
+              e.currentTarget.style.color = '#fca5a5';
             }}
           >
-            <LogOut size={15} />
+            <LogOut size={14} />
             <span>Logout</span>
           </button>
         </div>

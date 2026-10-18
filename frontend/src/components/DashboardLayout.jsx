@@ -4,7 +4,7 @@ import { Navbar } from './Navbar';
 
 export function DashboardLayout() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: 'var(--bg-primary)' }}>
       <Navbar />
       <main style={{ flex: 1, paddingBottom: '48px' }}>
         <Outlet />
@@ -12,12 +12,22 @@ export function DashboardLayout() {
       <footer style={{
         borderTop: '1px solid var(--border-subtle)',
         padding: '20px 24px',
-        textAlign: 'center',
-        color: 'var(--text-dim)',
-        fontSize: '0.8rem',
-        background: 'rgba(15, 23, 42, 0.4)',
+        color: 'var(--text-muted)',
+        fontSize: '0.825rem',
+        background: '#ffffff',
       }}>
-        MentorSync Platform • Educational Mentoring & Student Support
+        <div style={{
+          maxWidth: '1240px',
+          margin: '0 auto',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '8px'
+        }}>
+          <span>MentorSync Platform • Academic Mentorship & Student Support</span>
+          <span style={{ color: 'var(--text-dim)' }}>Institutional Edition</span>
+        </div>
       </footer>
     </div>
   );

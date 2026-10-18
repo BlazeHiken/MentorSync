@@ -57,63 +57,83 @@ export function MentorStudents() {
 
   return (
     <div className="page-container">
+      {/* Header */}
       <div style={{ marginBottom: '24px' }}>
         <span className="badge badge-mentor" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '9px' }}>
           <BookOpen size={13} /> Mentor Workspace
         </span>
-        <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#fff', margin: 0 }}>My Students</h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '5px' }}>
-          Students assigned to your mentoring divisions.
+        <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--navy-primary)', margin: 0, letterSpacing: '-0.02em' }}>
+          My Students
+        </h1>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '4px' }}>
+          Enrolled student mentees assigned to your academic mentoring divisions.
         </p>
       </div>
 
       {errorMsg && (
-        <div role="alert" style={{ padding: '12px 16px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171', borderRadius: '8px', marginBottom: '18px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <AlertCircle size={18} /> {errorMsg}
+        <div role="alert" style={{ padding: '12px 16px', background: 'var(--accent-rose-light)', border: '1px solid #fecaca', color: 'var(--accent-rose)', borderRadius: 'var(--radius-md)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 500, fontSize: '0.9rem' }}>
+          <AlertCircle size={18} style={{ flexShrink: 0 }} /> {errorMsg}
         </div>
       )}
 
-      <div className="dashboard-grid" style={{ marginBottom: '22px' }}>
+      {/* KPI Cards */}
+      <div className="dashboard-grid" style={{ marginBottom: '24px', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
         <div className="stat-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span className="stat-label">Assigned students</span>
-            <Users size={18} color="#38bdf8" />
+            <span className="stat-label">Assigned Mentees</span>
+            <div style={{ width: '38px', height: '38px', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--accent-cyan-light)', border: '1px solid #bae6fd', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0284c7' }}>
+              <Users size={18} />
+            </div>
           </div>
-          <div className="stat-value">{isLoading ? '—' : assignments.length}</div>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>Across your divisions</span>
+          <div className="stat-value" style={{ color: 'var(--navy-primary)' }}>
+            {isLoading ? '—' : assignments.length}
+          </div>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Across your cohorts</span>
         </div>
+
         <div className="stat-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span className="stat-label">Assigned divisions</span>
-            <GraduationCap size={18} color="#c084fc" />
+            <span className="stat-label">Assigned Divisions</span>
+            <div style={{ width: '38px', height: '38px', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--accent-teal-light)', border: '1px solid var(--accent-teal-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-teal)' }}>
+              <GraduationCap size={18} />
+            </div>
           </div>
-          <div className="stat-value">{isLoading ? '—' : divisions.length}</div>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>Active mentoring groups</span>
+          <div className="stat-value" style={{ color: 'var(--navy-primary)' }}>
+            {isLoading ? '—' : divisions.length}
+          </div>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Active mentoring groups</span>
         </div>
       </div>
 
+      {/* Student Directory Table Panel */}
       <section className="glass-panel" style={{ overflow: 'hidden' }}>
-        <div style={{ padding: '18px 20px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+        <div style={{ padding: '18px 22px', borderBottom: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', flexWrap: 'wrap', backgroundColor: '#ffffff' }}>
           <div>
-            <h2 style={{ color: '#fff', fontSize: '1rem', margin: 0 }}>Student directory</h2>
-            <span style={{ color: 'var(--text-dim)', fontSize: '0.82rem' }}>{visibleAssignments.length} shown</span>
+            <h2 style={{ color: 'var(--navy-primary)', fontSize: '1.05rem', fontWeight: 700, margin: 0 }}>
+              Student Directory
+            </h2>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>
+              {visibleAssignments.length} shown
+            </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-            <label style={{ position: 'relative', width: 'min(100%, 300px)' }}>
+            <label style={{ position: 'relative', width: 'min(100%, 280px)' }}>
               <Search size={16} color="var(--text-dim)" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
               <input
                 aria-label="Search students"
                 value={search}
                 onChange={event => setSearch(event.target.value)}
                 placeholder="Search name, roll number, email"
-                style={{ width: '100%', padding: '10px 12px 10px 37px', borderRadius: '8px', background: 'rgba(15,23,42,0.72)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff' }}
+                className="input-field"
+                style={{ paddingLeft: '36px', height: '38px', fontSize: '0.875rem' }}
               />
             </label>
             <select
               aria-label="Filter by division"
               value={divisionFilter}
               onChange={event => setDivisionFilter(event.target.value)}
-              style={{ padding: '10px 12px', borderRadius: '8px', background: '#172033', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', minWidth: '155px' }}
+              className="select-field"
+              style={{ height: '38px', minWidth: '155px', fontSize: '0.875rem' }}
             >
               <option value="ALL">All divisions</option>
               {divisions.map(division => <option key={division.id} value={division.id}>{division.name}</option>)}
@@ -123,25 +143,29 @@ export function MentorStudents() {
 
         {isLoading ? (
           <div style={{ minHeight: '210px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
-            <Loader2 size={22} className="spin" style={{ marginRight: '9px' }} /> Loading your students…
+            <Loader2 size={22} className="spin" style={{ marginRight: '9px', color: 'var(--primary)' }} /> Loading your students…
           </div>
         ) : !errorMsg && visibleAssignments.length === 0 ? (
-          <div style={{ padding: '42px 24px', textAlign: 'center', color: 'var(--text-dim)' }}>
-            <Users size={28} style={{ marginBottom: '10px', opacity: 0.65 }} />
-            <div style={{ color: '#e2e8f0', fontWeight: 600, marginBottom: '5px' }}>
+          <div style={{ padding: '48px 24px', textAlign: 'center', color: 'var(--text-muted)' }}>
+            <Users size={32} style={{ marginBottom: '12px', color: 'var(--text-dim)', opacity: 0.7 }} />
+            <div style={{ color: 'var(--navy-primary)', fontWeight: 600, fontSize: '1rem', marginBottom: '6px' }}>
               {assignments.length ? 'No students match your search.' : 'No students assigned yet.'}
             </div>
-            {!assignments.length && <div style={{ fontSize: '0.85rem' }}>Ask an administrator to assign students to one of your divisions.</div>}
+            {!assignments.length && (
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                Ask a campus administrator to assign students to one of your division cohorts.
+              </div>
+            )}
           </div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', minWidth: '650px', borderCollapse: 'collapse', textAlign: 'left' }}>
+            <table className="data-table">
               <thead>
-                <tr style={{ color: 'var(--text-muted)', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                  <th style={{ padding: '13px 18px' }}>Student</th>
-                  <th style={{ padding: '13px 18px' }}>Division</th>
-                  <th style={{ padding: '13px 18px' }}>Department</th>
-                  <th style={{ padding: '13px 18px' }}>Contact</th>
+                <tr>
+                  <th>Student</th>
+                  <th>Division</th>
+                  <th>Department</th>
+                  <th>Contact</th>
                 </tr>
               </thead>
               <tbody>
@@ -150,52 +174,60 @@ export function MentorStudents() {
                   const profile = student.profile || {};
                   const fullName = `${student.first_name || ''} ${student.last_name || ''}`.trim();
                   return (
-                    <tr key={item.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.055)' }}>
-                      <td style={{ padding: '14px 18px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <tr key={item.id}>
+                      <td>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                           <div style={{
-                            width: '34px',
-                            height: '34px',
-                            borderRadius: '10px',
-                            background: 'rgba(56, 189, 248, 0.12)',
-                            border: '1px solid rgba(56, 189, 248, 0.25)',
+                            width: '36px',
+                            height: '36px',
+                            borderRadius: 'var(--radius-md)',
+                            backgroundColor: 'var(--accent-cyan-light)',
+                            border: '1px solid #bae6fd',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            color: '#38bdf8',
-                            fontSize: '0.75rem',
+                            color: '#0284c7',
+                            fontSize: '0.78rem',
                             fontWeight: 700,
                             flexShrink: 0
                           }}>
                             {(fullName || student.username || 'S').slice(0, 2).toUpperCase()}
                           </div>
                           <div>
-                            <div style={{ color: '#f8fafc', fontWeight: 600 }}>{fullName || student.username || 'Student'}</div>
-                            <div style={{ color: 'var(--text-dim)', fontSize: '0.8rem', marginTop: '2px' }}>
+                            <div style={{ color: 'var(--text-main)', fontWeight: 600 }}>
+                              {fullName || student.username || 'Student'}
+                            </div>
+                            <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '2px', fontFamily: 'var(--font-mono)' }}>
                               {profile.roll_number || 'No roll number'}{student.username ? ` · @${student.username}` : ''}
                             </div>
                           </div>
                         </div>
                       </td>
-                      <td style={{ padding: '14px 18px' }}>
+                      <td>
                         <span style={{
                           display: 'inline-flex',
                           alignItems: 'center',
-                          padding: '3px 8px',
+                          padding: '3px 9px',
                           borderRadius: '9999px',
                           fontSize: '0.75rem',
                           fontWeight: 600,
-                          color: '#c084fc',
-                          background: 'rgba(168, 85, 247, 0.12)',
-                          border: '1px solid rgba(168, 85, 247, 0.25)'
+                          color: '#0d9488',
+                          backgroundColor: 'var(--accent-teal-light)',
+                          border: '1px solid var(--accent-teal-border)'
                         }}>
                           {item.division_details?.name || '—'}
                         </span>
                       </td>
-                      <td style={{ padding: '14px 18px', color: 'var(--text-muted)', fontSize: '0.87rem' }}>{profile.department || '—'}</td>
-                      <td style={{ padding: '14px 18px', color: 'var(--text-muted)', fontSize: '0.84rem' }}>
-                        <div>{student.email || 'No email'}</div>
-                        {profile.phone ? <div style={{ color: 'var(--text-dim)', fontSize: '0.78rem', marginTop: '3px' }}>{profile.phone}</div> : null}
+                      <td style={{ color: 'var(--text-secondary)' }}>
+                        {profile.department || '—'}
+                      </td>
+                      <td style={{ color: 'var(--text-secondary)' }}>
+                        <div>{student.email || 'No email on file'}</div>
+                        {profile.phone ? (
+                          <div style={{ color: 'var(--text-muted)', fontSize: '0.78rem', marginTop: '2px' }}>
+                            {profile.phone}
+                          </div>
+                        ) : null}
                       </td>
                     </tr>
                   );

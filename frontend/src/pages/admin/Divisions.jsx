@@ -1,32 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { fetchApi } from '../../api/client';
-import { Layers, Plus, Edit, Users, UserPlus, AlertCircle, CheckCircle2, Loader2, X } from 'lucide-react';
+import { Layers, Plus, Edit, UserPlus, AlertCircle, CheckCircle2, Loader2, X, Users as UsersIcon } from 'lucide-react';
 
 export function Divisions() {
   const [divisions, setDivisions] = useState([]);
   const [mentors, setMentors] = useState([]);
   const [students, setStudents] = useState([]);
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
-  
+
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showAssignMentorModal, setShowAssignMentorModal] = useState(false);
   const [showAssignStudentsModal, setShowAssignStudentsModal] = useState(false);
-  
+
   const [newDivisionName, setNewDivisionName] = useState('');
   const [selectedDivision, setSelectedDivision] = useState(null);
   const [selectedMentor, setSelectedMentor] = useState('');
   const [selectedStudents, setSelectedStudents] = useState([]);
 
-  useEffect(() => {
-    Promise.all([loadDivisions(), loadUsers()])
-      .finally(() => setIsLoading(false));
-  }, []);
-
-  const loadDivisions = async () => {
+  const loadDivisions = useCallback(async () => {
     try {
       const res = await fetchApi('/api/divisions/');
       if (res.ok) {
@@ -35,25 +30,49 @@ export function Divisions() {
       } else {
         setErrorMsg('Failed to load divisions.');
       }
-    } catch (e) {
+    } catch {
       setErrorMsg('Network error while loading divisions.');
     }
-  };
+  }, []);
 
-  const loadUsers = async () => {
-    try {
-      const res = await fetchApi('/api/users/');
-      if (res.ok) {
-        const data = await res.json();
-        setMentors(data.filter(u => u.role === 'MENTOR'));
-        setStudents(data.filter(u => u.role === 'STUDENT'));
-      } else {
-        setErrorMsg('Failed to load users for assignment.');
+  useEffect(() => {
+    let isMounted = true;
+    const fetchInitialData = async () => {
+      try {
+        const [divRes, userRes] = await Promise.all([
+          fetchApi('/api/divisions/'),
+          fetchApi('/api/users/'),
+        ]);
+        if (!isMounted) return;
+
+        if (divRes.ok) {
+          const divData = await divRes.json();
+          if (isMounted) setDivisions(divData);
+        } else {
+          if (isMounted) setErrorMsg('Failed to load divisions.');
+        }
+
+        if (userRes.ok) {
+          const userData = await userRes.json();
+          if (isMounted) {
+            setMentors(userData.filter(u => u.role === 'MENTOR'));
+            setStudents(userData.filter(u => u.role === 'STUDENT'));
+          }
+        } else {
+          if (isMounted) setErrorMsg('Failed to load users for assignment.');
+        }
+      } catch {
+        if (isMounted) setErrorMsg('Network error while loading data.');
+      } finally {
+        if (isMounted) setIsLoading(false);
       }
-    } catch (e) {
-      setErrorMsg('Network error while loading users.');
-    }
-  };
+    };
+
+    fetchInitialData();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const showTemporarySuccess = (msg) => {
     setSuccessMsg(msg);
@@ -78,7 +97,7 @@ export function Divisions() {
         const data = await res.json();
         setErrorMsg(data.name ? `Name: ${data.name[0]}` : 'Failed to create division.');
       }
-    } catch (e) {
+    } catch {
       setErrorMsg('Network error while creating division.');
     } finally {
       setIsSubmitting(false);
@@ -98,13 +117,12 @@ export function Divisions() {
       if (res.ok) {
         setShowAssignMentorModal(false);
         setSelectedDivision(null);
-        setSelectedMentor('');
         await loadDivisions();
-        showTemporarySuccess('Mentor assigned successfully!');
+        showTemporarySuccess('Faculty mentor assigned successfully!');
       } else {
-        setErrorMsg('Failed to assign mentor.');
+        setErrorMsg('Failed to assign mentor to division.');
       }
-    } catch (e) {
+    } catch {
       setErrorMsg('Network error while assigning mentor.');
     } finally {
       setIsSubmitting(false);
@@ -117,9 +135,9 @@ export function Divisions() {
     setIsSubmitting(true);
     setErrorMsg('');
     try {
-      const res = await fetchApi('/api/assignments/bulk_assign/', {
+      const res = await fetchApi('/api/assignments/bulk/', {
         method: 'POST',
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           division_id: selectedDivision.id,
           student_ids: selectedStudents
         })
@@ -129,11 +147,11 @@ export function Divisions() {
         setSelectedDivision(null);
         setSelectedStudents([]);
         await loadDivisions();
-        showTemporarySuccess('Students assigned successfully!');
+        showTemporarySuccess('Students assigned to division successfully!');
       } else {
-        setErrorMsg('Failed to assign students.');
+        setErrorMsg('Failed to assign students to division.');
       }
-    } catch (e) {
+    } catch {
       setErrorMsg('Network error while assigning students.');
     } finally {
       setIsSubmitting(false);
@@ -142,12 +160,21 @@ export function Divisions() {
 
   return (
     <div className="page-container">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', flexWrap: 'wrap', marginBottom: '24px' }}>
         <div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#ffffff', margin: 0 }}>Divisions & Assignments</h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '4px' }}>Manage academic cohorts and mentor allocations.</p>
+          <span className="badge badge-admin" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '9px' }}>
+            <Layers size={13} /> Administration
+          </span>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--navy-primary)', margin: 0, letterSpacing: '-0.02em' }}>
+            Divisions & Assignments
+          </h1>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '4px' }}>
+            Manage academic cohorts and mentor allocations across campus departments.
+          </p>
         </div>
-        <button 
+        <button
+          type="button"
           className="btn btn-primary"
           onClick={() => {
             setErrorMsg('');
@@ -160,61 +187,106 @@ export function Divisions() {
       </div>
 
       {successMsg && (
-        <div style={{ padding: '12px 16px', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', color: '#34d399', borderRadius: '8px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <CheckCircle2 size={18} />
-          {successMsg}
+        <div role="status" style={{ padding: '12px 16px', background: 'var(--accent-emerald-light)', border: '1px solid #a7f3d0', color: '#047857', borderRadius: 'var(--radius-md)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 500, fontSize: '0.9rem' }}>
+          <CheckCircle2 size={18} style={{ flexShrink: 0 }} /> {successMsg}
         </div>
       )}
 
       {errorMsg && !showCreateModal && !showAssignMentorModal && !showAssignStudentsModal && (
-        <div style={{ padding: '12px 16px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#f87171', borderRadius: '8px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <AlertCircle size={18} />
-          {errorMsg}
+        <div role="alert" style={{ padding: '12px 16px', background: 'var(--accent-rose-light)', border: '1px solid #fecaca', color: 'var(--accent-rose)', borderRadius: 'var(--radius-md)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 500, fontSize: '0.9rem' }}>
+          <AlertCircle size={18} style={{ flexShrink: 0 }} /> {errorMsg}
         </div>
       )}
 
-      <div className="glass-panel" style={{ position: 'relative', minHeight: '200px' }}>
+      {/* Cohort Overview Card */}
+      <div className="table-wrapper" style={{ minHeight: '200px' }}>
         {isLoading ? (
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
-            <Loader2 size={24} className="spin" style={{ marginRight: '8px' }}/> Loading data...
+          <div style={{ minHeight: '220px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
+            <Loader2 size={24} className="spin" style={{ marginRight: '8px', color: 'var(--primary)' }}/> Loading division data...
           </div>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+          <table className="data-table">
             <thead>
-              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-muted)' }}>
-                <th style={{ padding: '16px' }}>Division Name</th>
-                <th style={{ padding: '16px' }}>Assigned Mentor</th>
-                <th style={{ padding: '16px' }}>Students</th>
-                <th style={{ padding: '16px' }}>Actions</th>
+              <tr>
+                <th>Division Name</th>
+                <th>Assigned Faculty Mentor</th>
+                <th>Enrolled Students</th>
+                <th style={{ textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {divisions.length === 0 && (
                 <tr>
-                  <td colSpan="4" style={{ padding: '24px', textAlign: 'center', color: 'var(--text-dim)' }}>
+                  <td colSpan="4" style={{ padding: '36px', textAlign: 'center', color: 'var(--text-muted)' }}>
                     No divisions found. Create one to get started.
                   </td>
                 </tr>
               )}
               {divisions.map(div => (
-                <tr key={div.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                  <td style={{ padding: '16px', color: '#fff', fontWeight: 500 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <Layers size={18} color="#c084fc" />
-                      {div.name}
+                <tr key={div.id}>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div
+                        style={{
+                          width: '36px',
+                          height: '36px',
+                          borderRadius: 'var(--radius-md)',
+                          backgroundColor: 'var(--accent-teal-light)',
+                          border: '1px solid var(--accent-teal-border)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: 'var(--accent-teal)',
+                          flexShrink: 0,
+                        }}
+                      >
+                        <Layers size={18} />
+                      </div>
+                      <div>
+                        <div style={{ color: 'var(--navy-primary)', fontWeight: 700, fontSize: '0.95rem' }}>
+                          {div.name}
+                        </div>
+                        <div style={{ color: 'var(--text-dim)', fontSize: '0.75rem', fontFamily: 'var(--font-mono)' }}>
+                          ID: #{div.id}
+                        </div>
+                      </div>
                     </div>
                   </td>
-                  <td style={{ padding: '16px', color: 'var(--text-muted)' }}>
-                    {div.mentor_details ? `${div.mentor_details.first_name || div.mentor_details.username}` : <span style={{ color: '#f87171' }}>Unassigned</span>}
+                  <td>
+                    {div.mentor_details ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span className="badge badge-mentor">
+                          {div.mentor_details.first_name ? `Prof. ${div.mentor_details.first_name} ${div.mentor_details.last_name || ''}`.trim() : `Prof. ${div.mentor_details.username}`}
+                        </span>
+                      </div>
+                    ) : (
+                      <span
+                        style={{
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          padding: '3px 8px',
+                          borderRadius: '9999px',
+                          backgroundColor: 'var(--accent-rose-light)',
+                          color: 'var(--accent-rose)',
+                          border: '1px solid #fecaca',
+                        }}
+                      >
+                        Unassigned
+                      </span>
+                    )}
                   </td>
-                  <td style={{ padding: '16px', color: 'var(--text-muted)' }}>
-                    {div.student_count || 0} enrolled
+                  <td style={{ color: 'var(--text-secondary)' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: 'var(--bg-secondary)', padding: '3px 8px', borderRadius: 'var(--radius-xs)', fontSize: '0.8rem', fontWeight: 600 }}>
+                      <UsersIcon size={13} color="var(--text-muted)" />
+                      <span>{div.student_count || 0} enrolled</span>
+                    </div>
                   </td>
-                  <td style={{ padding: '16px' }}>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <button 
-                        className="btn" 
-                        style={{ padding: '6px 12px', fontSize: '0.8rem', background: 'rgba(255,255,255,0.1)' }}
+                  <td style={{ textAlign: 'right' }}>
+                    <div style={{ display: 'inline-flex', gap: '8px' }}>
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        style={{ padding: '6px 12px', fontSize: '0.8rem' }}
                         onClick={() => {
                           setErrorMsg('');
                           setSelectedDivision(div);
@@ -224,9 +296,10 @@ export function Divisions() {
                       >
                         <Edit size={14} style={{ display: 'inline', marginRight: '4px' }}/> Mentor
                       </button>
-                      <button 
-                        className="btn" 
-                        style={{ padding: '6px 12px', fontSize: '0.8rem', background: 'rgba(255,255,255,0.1)' }}
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        style={{ padding: '6px 12px', fontSize: '0.8rem' }}
                         onClick={() => {
                           setErrorMsg('');
                           setSelectedDivision(div);
@@ -246,22 +319,26 @@ export function Divisions() {
 
       {/* Create Division Modal */}
       {showCreateModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(2,6,23,0.76)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '20px' }}>
-          <div className="glass-panel" style={{ width: '100%', maxWidth: '440px', padding: '28px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
-              <h2 style={{ margin: 0, color: '#fff', fontSize: '1.25rem' }}>Create Division</h2>
-              <button type="button" className="btn" onClick={() => setShowCreateModal(false)} style={{ padding: '6px', color: 'var(--text-muted)' }}><X size={18} /></button>
+        <div className="modal-backdrop" role="presentation" onMouseDown={e => { if (e.target === e.currentTarget) setShowCreateModal(false); }}>
+          <div className="modal-card" style={{ maxWidth: '440px', padding: '28px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h2 style={{ margin: 0, color: 'var(--navy-primary)', fontSize: '1.25rem', fontWeight: 700 }}>Create Division</h2>
+              <button type="button" className="btn btn-secondary" onClick={() => setShowCreateModal(false)} style={{ padding: '6px' }}>
+                <X size={18} />
+              </button>
             </div>
             {errorMsg && (
-              <div style={{ padding: '10px 12px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.25)', color: '#f87171', borderRadius: 'var(--radius-sm)', marginBottom: '16px', fontSize: '0.85rem' }}>
+              <div role="alert" style={{ padding: '10px 12px', backgroundColor: 'var(--accent-rose-light)', border: '1px solid #fecaca', color: 'var(--accent-rose)', borderRadius: 'var(--radius-sm)', marginBottom: '16px', fontSize: '0.85rem', fontWeight: 500 }}>
                 {errorMsg}
               </div>
             )}
             <form onSubmit={handleCreateDivision}>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 600 }}>Division Name</label>
-                <input 
-                  type="text" 
+              <div style={{ marginBottom: '22px' }}>
+                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600 }}>
+                  Division Name
+                </label>
+                <input
+                  type="text"
                   value={newDivisionName}
                   onChange={e => setNewDivisionName(e.target.value)}
                   disabled={isSubmitting}
@@ -271,7 +348,9 @@ export function Divisions() {
                 />
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-                <button type="button" className="btn" disabled={isSubmitting} onClick={() => setShowCreateModal(false)}>Cancel</button>
+                <button type="button" className="btn btn-secondary" disabled={isSubmitting} onClick={() => setShowCreateModal(false)}>
+                  Cancel
+                </button>
                 <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
                   {isSubmitting ? 'Creating...' : 'Create Division'}
                 </button>
@@ -283,35 +362,49 @@ export function Divisions() {
 
       {/* Assign Mentor Modal */}
       {showAssignMentorModal && selectedDivision && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(2,6,23,0.76)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '20px' }}>
-          <div className="glass-panel" style={{ width: '100%', maxWidth: '440px', padding: '28px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
-              <h2 style={{ margin: 0, color: '#fff', fontSize: '1.25rem' }}>Assign Mentor • {selectedDivision.name}</h2>
-              <button type="button" className="btn" onClick={() => setShowAssignMentorModal(false)} style={{ padding: '6px', color: 'var(--text-muted)' }}><X size={18} /></button>
+        <div className="modal-backdrop" role="presentation" onMouseDown={e => { if (e.target === e.currentTarget) setShowAssignMentorModal(false); }}>
+          <div className="modal-card" style={{ maxWidth: '460px', padding: '28px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <div>
+                <h2 style={{ margin: 0, color: 'var(--navy-primary)', fontSize: '1.2rem', fontWeight: 700 }}>
+                  Assign Mentor
+                </h2>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                  Cohort: {selectedDivision.name}
+                </span>
+              </div>
+              <button type="button" className="btn btn-secondary" onClick={() => setShowAssignMentorModal(false)} style={{ padding: '6px' }}>
+                <X size={18} />
+              </button>
             </div>
             {errorMsg && (
-              <div style={{ padding: '10px 12px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.25)', color: '#f87171', borderRadius: 'var(--radius-sm)', marginBottom: '16px', fontSize: '0.85rem' }}>
+              <div role="alert" style={{ padding: '10px 12px', backgroundColor: 'var(--accent-rose-light)', border: '1px solid #fecaca', color: 'var(--accent-rose)', borderRadius: 'var(--radius-sm)', marginBottom: '16px', fontSize: '0.85rem', fontWeight: 500 }}>
                 {errorMsg}
               </div>
             )}
             <form onSubmit={handleAssignMentor}>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 600 }}>Select Faculty Mentor</label>
-                <select 
+              <div style={{ marginBottom: '22px' }}>
+                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600 }}>
+                  Select Faculty Mentor
+                </label>
+                <select
                   value={selectedMentor}
                   onChange={e => setSelectedMentor(e.target.value)}
                   disabled={isSubmitting}
-                  className="input-field"
-                  style={{ background: '#0f172a' }}
+                  className="select-field"
                 >
                   <option value="">-- Unassigned --</option>
                   {mentors.map(m => (
-                    <option key={m.id} value={m.id}>{m.first_name ? `${m.first_name} ${m.last_name || ''}`.trim() : m.username} ({m.email || 'No email'})</option>
+                    <option key={m.id} value={m.id}>
+                      {m.first_name ? `Prof. ${m.first_name} ${m.last_name || ''}`.trim() : m.username} ({m.email || 'No email'})
+                    </option>
                   ))}
                 </select>
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-                <button type="button" className="btn" disabled={isSubmitting} onClick={() => setShowAssignMentorModal(false)}>Cancel</button>
+                <button type="button" className="btn btn-secondary" disabled={isSubmitting} onClick={() => setShowAssignMentorModal(false)}>
+                  Cancel
+                </button>
                 <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
                   {isSubmitting ? 'Saving...' : 'Save Assignment'}
                 </button>
@@ -323,48 +416,59 @@ export function Divisions() {
 
       {/* Assign Students Modal */}
       {showAssignStudentsModal && selectedDivision && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(2,6,23,0.76)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '20px' }}>
-          <div className="glass-panel" style={{ width: '100%', maxWidth: '480px', padding: '28px' }}>
+        <div className="modal-backdrop" role="presentation" onMouseDown={e => { if (e.target === e.currentTarget) setShowAssignStudentsModal(false); }}>
+          <div className="modal-card" style={{ maxWidth: '520px', padding: '28px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
-              <h2 style={{ margin: 0, color: '#fff', fontSize: '1.25rem' }}>Add Students • {selectedDivision.name}</h2>
-              <button type="button" className="btn" onClick={() => setShowAssignStudentsModal(false)} style={{ padding: '6px', color: 'var(--text-muted)' }}><X size={18} /></button>
+              <div>
+                <h2 style={{ margin: 0, color: 'var(--navy-primary)', fontSize: '1.2rem', fontWeight: 700 }}>
+                  Add Students to Division
+                </h2>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                  Cohort: {selectedDivision.name}
+                </span>
+              </div>
+              <button type="button" className="btn btn-secondary" onClick={() => setShowAssignStudentsModal(false)} style={{ padding: '6px' }}>
+                <X size={18} />
+              </button>
             </div>
             {errorMsg && (
-              <div style={{ padding: '10px 12px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.25)', color: '#f87171', borderRadius: 'var(--radius-sm)', marginBottom: '16px', fontSize: '0.85rem' }}>
+              <div role="alert" style={{ padding: '10px 12px', backgroundColor: 'var(--accent-rose-light)', border: '1px solid #fecaca', color: 'var(--accent-rose)', borderRadius: 'var(--radius-sm)', marginBottom: '16px', fontSize: '0.85rem', fontWeight: 500 }}>
                 {errorMsg}
               </div>
             )}
             <form onSubmit={handleAssignStudents}>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '10px', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 600 }}>Select Students for Division</label>
-                <div style={{ maxHeight: '280px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '6px', paddingRight: '4px' }}>
+              <div style={{ marginBottom: '22px' }}>
+                <label style={{ display: 'block', marginBottom: '10px', color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600 }}>
+                  Select Students ({selectedStudents.length} selected)
+                </label>
+                <div style={{ maxHeight: '280px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '4px' }}>
                   {students.length === 0 ? (
-                    <p style={{ color: 'var(--text-dim)', fontSize: '0.85rem' }}>No enrolled students available.</p>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>No enrolled students available.</p>
                   ) : (
                     students.map(s => {
                       const isChecked = selectedStudents.includes(s.id);
                       return (
-                        <label 
-                          key={s.id} 
+                        <label
+                          key={s.id}
                           htmlFor={`student-${s.id}`}
                           style={{
                             display: 'flex',
                             alignItems: 'center',
                             gap: '12px',
-                            padding: '10px 12px',
-                            borderRadius: 'var(--radius-sm)',
-                            background: isChecked ? 'rgba(99, 102, 241, 0.12)' : 'rgba(255,255,255,0.02)',
-                            border: `1px solid ${isChecked ? 'rgba(99, 102, 241, 0.35)' : 'var(--border-subtle)'}`,
+                            padding: '10px 14px',
+                            borderRadius: 'var(--radius-md)',
+                            backgroundColor: isChecked ? 'var(--accent-teal-light)' : '#ffffff',
+                            border: `1px solid ${isChecked ? 'var(--accent-teal)' : 'var(--border-subtle)'}`,
                             cursor: 'pointer',
-                            transition: 'all 0.15s ease'
+                            transition: 'all var(--transition-fast)',
                           }}
                         >
-                          <input 
-                            type="checkbox" 
+                          <input
+                            type="checkbox"
                             id={`student-${s.id}`}
                             checked={isChecked}
                             disabled={isSubmitting}
-                            style={{ accentColor: 'var(--accent-primary)', width: '16px', height: '16px', cursor: 'pointer' }}
+                            style={{ accentColor: 'var(--primary)', width: '16px', height: '16px', cursor: 'pointer' }}
                             onChange={(e) => {
                               if (e.target.checked) {
                                 setSelectedStudents([...selectedStudents, s.id]);
@@ -374,10 +478,10 @@ export function Divisions() {
                             }}
                           />
                           <div style={{ minWidth: 0, flex: 1 }}>
-                            <div style={{ color: '#fff', fontSize: '0.875rem', fontWeight: 500 }}>
+                            <div style={{ color: 'var(--text-main)', fontSize: '0.875rem', fontWeight: 600 }}>
                               {s.first_name ? `${s.first_name} ${s.last_name || ''}`.trim() : s.username}
                             </div>
-                            <div style={{ color: 'var(--text-dim)', fontSize: '0.75rem' }}>
+                            <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontFamily: 'var(--font-mono)' }}>
                               Roll: {s.profile?.roll_number || 'N/A'} • {s.email || `@${s.username}`}
                             </div>
                           </div>
@@ -388,7 +492,9 @@ export function Divisions() {
                 </div>
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-                <button type="button" className="btn" disabled={isSubmitting} onClick={() => setShowAssignStudentsModal(false)}>Cancel</button>
+                <button type="button" className="btn btn-secondary" disabled={isSubmitting} onClick={() => setShowAssignStudentsModal(false)}>
+                  Cancel
+                </button>
                 <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
                   {isSubmitting ? 'Assigning...' : 'Assign Students'}
                 </button>
@@ -397,7 +503,6 @@ export function Divisions() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { loginUser, fetchCurrentUser } from '../api/client';
 
 const AuthContext = createContext(null);
@@ -9,6 +9,13 @@ export function AuthProvider({ children }) {
     return saved ? JSON.parse(saved) : null;
   });
   const [loading, setLoading] = useState(true);
+
+  const logout = useCallback(() => {
+    localStorage.removeItem('mentorsync_access_token');
+    localStorage.removeItem('mentorsync_refresh_token');
+    localStorage.removeItem('mentorsync_user');
+    setUser(null);
+  }, []);
 
   useEffect(() => {
     const initAuth = async () => {
@@ -39,7 +46,7 @@ export function AuthProvider({ children }) {
     const handleAutoLogout = () => logout();
     window.addEventListener('auth:logout', handleAutoLogout);
     return () => window.removeEventListener('auth:logout', handleAutoLogout);
-  }, []);
+  }, [logout]);
 
   const login = async (username, password) => {
     const data = await loginUser(username, password);
@@ -48,13 +55,6 @@ export function AuthProvider({ children }) {
     localStorage.setItem('mentorsync_user', JSON.stringify(data.user));
     setUser(data.user);
     return data.user;
-  };
-
-  const logout = () => {
-    localStorage.removeItem('mentorsync_access_token');
-    localStorage.removeItem('mentorsync_refresh_token');
-    localStorage.removeItem('mentorsync_user');
-    setUser(null);
   };
 
   const getDashboardRoute = (role = user?.role) => {
@@ -85,6 +85,7 @@ export function AuthProvider({ children }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+// oxlint-disable-next-line react/only-export-components
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
