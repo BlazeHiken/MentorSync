@@ -231,6 +231,19 @@ class Command(BaseCommand):
             }
         )
 
+        Issue.objects.get_or_create(
+            student=student3,
+            title='Elective course registration guidance',
+            defaults={
+                'category': IssueCategory.ACADEMIC,
+                'priority': IssuePriority.MEDIUM,
+                'status': IssueStatus.OPEN,
+                'description': 'Need advice on choosing between Cloud Architecture and Data Engineering electives.',
+                'mentor_response': 'Scheduled one-on-one discussion to review syllabus and prerequisites.',
+                'mentor_action': 'Shared department curriculum guide and course roadmap.',
+            }
+        )
+
         self.stdout.write(self.style.SUCCESS("Issues seeded across all lifecycle statuses."))
 
         # 6. Seed Mentoring Sessions
@@ -253,6 +266,17 @@ class Command(BaseCommand):
                 'discussion': 'Internship preparation, resume critique, and campus placement schedule.',
                 'observation': 'Good coding foundation. Recommended participating in upcoming competitive programming hackathon.',
                 'action_follow_up': 'Submit updated technical resume before Friday.',
+            }
+        )
+
+        MentoringSession.objects.get_or_create(
+            student=student3,
+            mentor=mentor2,
+            date=date(2026, 9, 25),
+            defaults={
+                'discussion': 'Curriculum planning, technical elective choices, and cloud architecture project scoping.',
+                'observation': 'Demonstrates clear interest in backend and distributed systems.',
+                'action_follow_up': 'Review prerequisite topics before next mentoring slot.',
             }
         )
 

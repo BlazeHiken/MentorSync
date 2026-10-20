@@ -194,7 +194,7 @@ export function Login() {
                   type="text"
                   className="input-field"
                   style={{ paddingLeft: '42px', height: '44px' }}
-                  placeholder="e.g. admin or mentor_rahul"
+                  placeholder="e.g. admin or mentor_priya"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   disabled={isLoading}
@@ -351,14 +351,14 @@ export function Login() {
 
             <button
               type="button"
-              onClick={() => handleQuickFill('mentor_rahul', 'password123')}
+              onClick={() => handleQuickFill('mentor_priya', 'password123')}
               style={{
                 padding: '12px 8px',
                 borderRadius: 'var(--radius-md)',
-                backgroundColor: username === 'mentor_rahul' ? 'var(--accent-cyan-light)' : '#ffffff',
-                border: username === 'mentor_rahul' ? '1.5px solid var(--accent-cyan)' : '1px solid var(--border-medium)',
-                boxShadow: username === 'mentor_rahul' ? '0 0 0 1px var(--accent-cyan)' : 'var(--shadow-xs)',
-                color: username === 'mentor_rahul' ? 'var(--accent-cyan)' : 'var(--text-secondary)',
+                backgroundColor: username === 'mentor_priya' ? 'var(--accent-cyan-light)' : '#ffffff',
+                border: username === 'mentor_priya' ? '1.5px solid var(--accent-cyan)' : '1px solid var(--border-medium)',
+                boxShadow: username === 'mentor_priya' ? '0 0 0 1px var(--accent-cyan)' : 'var(--shadow-xs)',
+                color: username === 'mentor_priya' ? 'var(--accent-cyan)' : 'var(--text-secondary)',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
@@ -367,9 +367,9 @@ export function Login() {
                 transition: 'all var(--transition-fast)',
               }}
             >
-              <UserCheck size={18} color={username === 'mentor_rahul' ? 'var(--accent-cyan)' : 'var(--text-muted)'} />
+              <UserCheck size={18} color={username === 'mentor_priya' ? 'var(--accent-cyan)' : 'var(--text-muted)'} />
               <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Mentor</span>
-              <span style={{ fontSize: '0.675rem', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)' }}>rahul</span>
+              <span style={{ fontSize: '0.675rem', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)' }}>priya</span>
             </button>
 
             <button
