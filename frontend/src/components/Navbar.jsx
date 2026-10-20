@@ -82,16 +82,16 @@ export function Navbar() {
         maxWidth: '1280px',
         margin: '0 auto',
         padding: '0 24px',
-        minHeight: '68px',
+        height: '68px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '12px',
+        flexWrap: 'nowrap',
+        gap: '16px',
       }}>
         {/* Brand & Navigation */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '28px', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '6px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'nowrap', minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '6px 0', flexShrink: 0 }}>
             <div style={{
               width: '38px',
               height: '38px',
@@ -101,10 +101,11 @@ export function Navbar() {
               alignItems: 'center',
               justifyContent: 'center',
               boxShadow: '0 2px 8px rgba(37, 99, 235, 0.35)',
+              flexShrink: 0,
             }}>
               <GraduationCap size={22} color="#ffffff" />
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', whiteSpace: 'nowrap' }}>
               <span style={{
                 fontWeight: 800,
                 fontSize: '1.2rem',
@@ -121,7 +122,7 @@ export function Navbar() {
                 textTransform: 'uppercase',
                 fontWeight: 600,
               }}>
-                HigherEd Platform
+                Campus Engagement
               </span>
             </div>
           </div>
@@ -133,6 +134,8 @@ export function Navbar() {
             gap: '4px',
             overflowX: 'auto',
             padding: '4px 0',
+            flexShrink: 1,
+            scrollbarWidth: 'none',
           }}>
             {navLinks.map((item) => {
               const Icon = item.icon;
@@ -153,6 +156,7 @@ export function Navbar() {
                     color: isActive ? '#ffffff' : '#cbd5e1',
                     background: isActive ? 'rgba(255, 255, 255, 0.14)' : 'transparent',
                     border: isActive ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid transparent',
+                    flexShrink: 0,
                   })}
                 >
                   <Icon size={16} />
@@ -164,8 +168,8 @@ export function Navbar() {
         </div>
 
         {/* Right side user info & logout */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '6px 0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '6px 0', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
             <div style={{
               width: '36px',
               height: '36px',
@@ -178,17 +182,18 @@ export function Navbar() {
               fontSize: '0.8rem',
               fontWeight: 700,
               color: '#ffffff',
+              flexShrink: 0,
             }}>
               {getInitials(user)}
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#ffffff' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', whiteSpace: 'nowrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}>
+                <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#ffffff', whiteSpace: 'nowrap' }}>
                   {user.first_name ? `${user.first_name} ${user.last_name || ''}`.trim() : user.username}
                 </span>
                 {getRoleBadge(user.role)}
               </div>
-              <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+              <span style={{ fontSize: '0.75rem', color: '#94a3b8', whiteSpace: 'nowrap' }}>
                 {user.department || user.email}
               </span>
             </div>
